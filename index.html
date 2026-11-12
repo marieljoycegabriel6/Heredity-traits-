@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Traits Lab · 家族特徵實驗室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fff8ec; --ink:#2d2a32; --muted:#6b6475; --card:#ffffff;
+    --mom:#ec4899; --dad:#2563eb; --good:#16a34a; --bad:#dc2626; --accent:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2","Noto Sans TC",system-ui,sans-serif;font-size:20px;line-height:1.3}
+  .zh{font-family:"Noto Sans TC",sans-serif;color:var(--muted);font-weight:500}
+  header{text-align:center;padding:18px 12px 6px}
+  header h1{margin:0;font-size:2.1rem}
+  header .zh{font-size:1.4rem}
+  nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0 6px}
+  button{font:inherit;cursor:pointer;border:none;border-radius:16px;padding:10px 18px;background:#ede9fe;color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.12);transition:transform .08s}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+  button:disabled{opacity:.45;cursor:default}
+  button.big{font-size:1.3rem;padding:14px 26px;background:var(--accent);color:#fff;font-weight:700}
+  button .zh{color:inherit;opacity:.9}
+  nav button.on{background:#7c3aed;color:#fff}
+  main{max-width:1150px;margin:0 auto;padding:8px 16px 40px}
+  .view{display:none}.view.on{display:block}
+  .step{text-align:center;font-size:1.25rem;margin:6px 0 14px;font-weight:700}
+  .step .zh{display:block;font-size:1.1rem}
+  .family{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:800px){.family{grid-template-columns:1fr}}
+  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);text-align:center}
+  .card h2{margin:2px 0 0;font-size:1.5rem}
+  .card.mom h2{color:var(--mom)}.card.dad h2{color:var(--dad)}.card.baby h2{color:#7c3aed}
+  .card svg{width:100%;max-width:230px;height:auto}
+  ul.traits{list-style:none;padding:0;margin:6px 0 0;text-align:left}
+  ul.traits li{padding:5px 10px;border-radius:10px;margin:3px 0;font-size:1rem;transition:background .3s}
+  ul.traits li.hit{background:#fef3c7;outline:3px solid var(--accent)}
+  ul.traits b{display:inline-block;min-width:7.5em}
+  .center{text-align:center}
+  .model-note{text-align:center;font-size:.95rem;margin:12px auto}
+  .model-note .zh{display:block}
+  .coinbox{display:flex;flex-direction:column;align-items:center;gap:10px;margin:18px 0}
+  .coin{width:110px;height:110px;position:relative;transform-style:preserve-3d}
+  .coin .face{position:absolute;inset:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;color:#fff;backface-visibility:hidden;font-size:1.05rem;border:6px solid rgba(255,255,255,.5)}
+  .coin .m{background:var(--mom)}.coin .d{background:var(--dad);transform:rotateY(180deg)}
+  .coin.spin{animation:spin 1.1s ease-out forwards}
+  @keyframes spin{from{transform:rotateY(0)}to{transform:rotateY(var(--end))}}
+  .msg{min-height:3.2em;text-align:center;font-size:1.2rem}
+  .msg .zh{display:block}
+  .say{background:#fff;padding:4px 10px;font-size:.95rem;margin-left:6px}
+  .habits{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:12px 0}
+  .habit{background:#fff;border:3px solid #e5e7eb;text-align:left;display:flex;gap:10px;align-items:center}
+  .habit.on{border-color:var(--good);background:#dcfce7}
+  .habit .e{font-size:1.8rem}
+  .note{background:#dcfce7;border-radius:18px;padding:14px 18px;margin:14px auto;max-width:800px;text-align:center;font-size:1.15rem}
+  .note .zh{display:block}
+  .gallery{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+  .gallery .mini{background:#fff;border-radius:16px;padding:6px 8px;width:130px;font-size:.9rem;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+  .gallery svg{width:100%;height:auto}
+  .hidden{display:none!important}
+  /* sorting */
+  .sortcard{background:#fff;border-radius:26px;padding:26px;max-width:620px;margin:10px auto;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.1)}
+  .sortcard .emoji{font-size:4.5rem}
+  .sortcard .en{font-size:2rem;font-weight:700}
+  .sortcard .zh{font-size:1.7rem}
+  .bins{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .bins button{min-width:250px;font-size:1.35rem;padding:18px;font-weight:700;color:#fff}
+  .bins .inh{background:#7c3aed}.bins .lrn{background:#0d9488}
+  .bins button .zh{color:#fff;display:block}
+  .score{text-align:center;font-size:1.2rem}
+  .fb{min-height:3.5em;text-align:center;font-size:1.25rem;font-weight:700}
+  .fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+  .fb .zh{display:block;color:inherit}
+  .defs{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+  .defs div{background:#fff;border-radius:16px;padding:10px 16px;max-width:360px;font-size:1rem}
+  @media (min-width:1000px) and (min-height:500px){
+    header{padding-top:8px}
+    nav{margin:6px 0}
+    main{max-width:1600px;padding:4px 24px 24px}
+    .family{gap:18px}
+    .card{padding:6px 14px}
+    .card svg{max-width:min(230px, 25vh)}
+    ul.traits{margin-top:0}
+    ul.traits li{padding:2px 8px;margin:2px 0}
+    .step{margin:4px 0 8px}
+    .coinbox{margin:6px 0;gap:5px}
+    .coin{width:68px;height:68px}
+    .coin .face{border-width:3px}
+    .model-note{margin:6px auto}
+    .msg{min-height:2.5em}
+    .habits{grid-template-columns:repeat(3,1fr)}
+  }
+  #clueDialog{width:min(920px,96vw);max-height:94vh;border:0;border-radius:24px;background:var(--bg);color:var(--ink);padding:14px 20px;text-align:center}
+  #clueDialog::backdrop{background:#262035aa}
+  .clue-header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .clue-header h2{margin:0;font-size:1.25rem}
+  .clue-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px auto;max-width:650px}
+  .clue-pair svg{display:block;width:min(100%,28vh,230px);margin:auto}
+  .clue-pair button{background:#fff}
+  #clueFeedback{min-height:2.4em;margin:8px auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Family Traits Lab</h1>
+  <div class="zh">家族特徵實驗室</div>
+  <nav>
+    <button id="tabLab" class="on">👶 Make a Baby <span class="zh">做一個寶寶</span></button>
+    <button id="tabSort">🗂️ Inherited or Learned? <span class="zh">遺傳還是學來的？</span></button>
+    <button id="musicBtn" aria-pressed="false">♫ Music on <span class="zh">開啟音樂</span></button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ MONSTER LAB ============ -->
+<section id="lab" class="view on">
+  <div class="step" id="stepText"></div>
+  <div class="family">
+    <div class="card mom"><h2>Mom <span class="zh">媽媽</span></h2><div id="momSvg"></div><ul class="traits" id="momList"></ul></div>
+    <div class="card baby"><h2>Baby <span class="zh">寶寶</span></h2><div id="babySvg"></div><ul class="traits" id="babyList"></ul></div>
+    <div class="card dad"><h2>Dad <span class="zh">爸爸</span></h2><div id="dadSvg"></div><ul class="traits" id="dadList"></ul></div>
+  </div>
+
+  <p class="model-note">The coin is part of the game. In real life, children inherit genes from both parents.
+    <span class="zh">硬幣是遊戲道具。現實生活中，孩子會從爸爸和媽媽兩邊遺傳到基因。</span></p>
+  <div id="flipArea" class="coinbox">
+    <div class="coin" id="coin"><div class="face m">Mom<span>媽媽</span></div><div class="face d">Dad<span>爸爸</span></div></div>
+    <button class="big" id="flipBtn">🪙 Flip the coin! <span class="zh">擲硬幣！</span></button>
+    <div class="msg" id="flipMsg"></div>
+  </div>
+
+  <div id="habitArea" class="hidden">
+    <div class="note" id="summary"></div>
+    <div class="step">The baby is growing up! Pick healthy habits for the baby to learn.
+      <span class="zh">寶寶長大了！幫寶寶選擇要學習的健康習慣。</span></div>
+    <div class="habits" id="habits"></div>
+    <div class="center"><button class="big" id="habitDone">✅ Done <span class="zh">完成</span></button></div>
+    <div class="note hidden" id="habitNote"></div>
+  </div>
+
+  <div class="center" style="margin-top:14px">
+    <button id="sibBtn" class="big hidden" style="background:#7c3aed">👶 Make a brother or sister <span class="zh">再生一個兄弟姊妹</span></button>
+    <button id="newFam">🔄 New parents <span class="zh">換新的爸爸媽媽</span></button>
+  </div>
+
+  <div id="galWrap" class="hidden" style="margin-top:18px">
+    <div class="step">Brothers & sisters — same parents, different babies!
+      <span class="zh">兄弟姊妹：同樣的爸爸媽媽，不一樣的寶寶！</span></div>
+    <button id="clueStart" class="big">Find the Family Clue! <span class="zh">找找家族線索！</span></button>
+    <div class="gallery" id="gallery"></div>
+  </div>
+</section>
+
+<!-- ============ SORTING GAME ============ -->
+<section id="sort" class="view">
+  <div class="defs">
+    <div><b>🧬 Inherited</b> <span class="zh">遺傳的</span><br>You get it from your parents when you are born.<br><span class="zh">出生時從爸爸媽媽那裡得到的。</span></div>
+    <div><b>📚 Learned</b> <span class="zh">學來的</span><br>You learn or practice it as you grow up.<br><span class="zh">長大過程中學習或練習得來的。</span></div>
+  </div>
+  <div class="score" id="score"></div>
+  <div class="sortcard" id="sortCard"></div>
+  <div class="bins" id="bins">
+    <button class="inh" data-a="inh">🧬 Inherited <span class="zh">遺傳的</span></button>
+    <button class="lrn" data-a="lrn">📚 Learned <span class="zh">學來的</span></button>
+  </div>
+  <div class="fb" id="fb"></div>
+  <div class="center"><button id="nextCard" class="big hidden">Next ➡️ <span class="zh">下一題</span></button>
+  <button id="restartSort" class="big hidden">🔁 Play again <span class="zh">再玩一次</span></button></div>
+</section>
+</main>
+<dialog id="clueDialog" aria-labelledby="clueTitle">
+  <div class="clue-header">
+    <h2 id="clueTitle">Find the Family Clue! <span class="zh">找找家族線索！</span></h2>
+    <button id="clueClose">Back <span class="zh">返回</span></button>
+  </div>
+  <div id="clueQuestion" class="step"></div>
+  <div class="clue-pair">
+    <button id="clueFirst"></button><button id="clueSecond"></button>
+  </div>
+  <button id="clueBoth">Both babies <span class="zh">兩個寶寶</span></button>
+  <div id="clueFeedback" aria-live="polite"></div>
+  <button id="clueNext" class="big hidden"></button>
+</dialog>
+
+<script>
+/* ---------- speech (optional; silently ignored if unavailable) ---------- */
+function speak(text, lang){
+  try{
+    const u = new SpeechSynthesisUtterance(text); u.lang = lang; u.rate = .85;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+function sayBtns(en, zh){
+  return `<button class="say" onclick="speak('${en.replace(/'/g,"\\'")}','en-US')">🔊 EN</button><button class="say" onclick="speak('${zh}','zh-TW')">🔊 中文</button>`;
+}
+
+/* ---------- traits ---------- */
+const TRAITS = [
+  {k:'hair', en:'Hair color', zh:'頭髮顏色', o:[{v:'black',en:'black hair',zh:'黑頭髮'},{v:'brown',en:'brown hair',zh:'棕色頭髮'}]},
+  {k:'texture', en:'Hair type', zh:'髮質', o:[{v:'straight',en:'straight hair',zh:'直髮'},{v:'curly',en:'curly hair',zh:'捲髮'}]},
+  {k:'eyes', en:'Eye color', zh:'眼睛顏色', o:[{v:'brown',en:'brown eyes',zh:'棕色眼睛'},{v:'blue',en:'blue eyes',zh:'藍色眼睛'}]},
+  {k:'freckles', en:'Freckles', zh:'雀斑', o:[{v:true,en:'freckles',zh:'有雀斑'},{v:false,en:'no freckles',zh:'沒有雀斑'}]},
+];
+const opt = (t,v)=>t.o.find(x=>x.v===v);
+
+function familyPortrait(person, role){
+  const isBaby = role === 'baby';
+  const isSketch = isBaby && !Object.hasOwn(person, 'hair');
+  const isComplete = !isBaby || Object.hasOwn(person, 'freckles');
+  const hair = {black:'#211c2b', brown:'#8b482c'}[person.hair] ?? '#c7bac1';
+  const eye = {brown:'#793b24', blue:'#2467a9'}[person.eyes] ?? '#9ca3af';
+  const shirt = {mom:'#d75c8f', dad:'#417ac6', baby:'#9565ca'}[role];
+  const skin = isSketch ? '#fffaf3' : '#f4ba94';
+  const outline = isSketch ? 'stroke="#a68d82" stroke-width="2.5"' : '';
+  const curls = person.texture === 'curly'
+    ? [[52,71,17],[60,52,19],[81,41,20],[106,39,21],[130,47,20],[146,65,18]]
+        .map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${hair}"/>`).join('')
+    : '';
+  const backHair = role === 'mom'
+    ? `<path d="M43 82a57 57 0 0 1 114 0v76q-57 21-114 0z" fill="${hair}"/>`
+    : '';
+  const freckles = person.freckles
+    ? [[66,108],[73,113],[80,107],[120,107],[127,113],[134,108]]
+        .map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.7" fill="#955237"/>`).join('')
+    : '';
+  return `<svg viewBox="0 0 200 200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="94" fill="#fff2dc"/>
+    <g transform="${isBaby ? 'translate(10 14) scale(.9)' : ''}">
+      ${backHair}
+      <path d="M39 186q5-42 61-42t61 42q-61 20-122 0z" fill="${isSketch ? skin : shirt}" ${outline}/>
+      <path d="M83 139h34v16q-17 18-34 0z" fill="${isSketch ? skin : '#eaa982'}" ${outline}/>
+      <circle cx="48" cy="103" r="11" fill="${skin}" ${outline}/>
+      <circle cx="152" cy="103" r="11" fill="${skin}" ${outline}/>
+      <ellipse cx="100" cy="94" rx="52" ry="59" fill="${skin}" ${outline}/>
+      ${person.hair ? `<path d="M48 94Q32 36 83 31q40-9 61 19 12 15 8 44l-10-19q-35 1-56-19-9 17-32 21z" fill="${hair}"/>` : ''}
+      ${curls}
+      ${person.eyes ? `<ellipse cx="78" cy="92" rx="12" ry="10" fill="#fff"/>
+      <ellipse cx="122" cy="92" rx="12" ry="10" fill="#fff"/>
+      <circle cx="79" cy="93" r="7" fill="${eye}"/><circle cx="121" cy="93" r="7" fill="${eye}"/>
+      <circle cx="77" cy="90" r="2" fill="#fff"/><circle cx="119" cy="90" r="2" fill="#fff"/>` : ''}
+      ${isComplete ? `<path d="m100 99-4 12h7m-14 10q11 10 22 0" fill="none" stroke="#8e4b45" stroke-width="2.8" stroke-linecap="round"/>` : ''}
+      ${freckles}
+    </g>
+  </svg>`;
+}
+
+function traitList(m, hitKey){
+  return TRAITS.map(t=>{
+    const o = opt(t, m[t.k]);
+    return `<li class="${t.k===hitKey?'hit':''}"><b>${t.en} <span class="zh">${t.zh}</span></b> ${o?`${o.en} <span class="zh">${o.zh}</span>`:'❓'}</li>`;
+  }).join('');
+}
+
+/* ---------- lab state ---------- */
+let mom, dad, baby, idx, fromMom, babyNum, babies, round = 0;
+const $ = id=>document.getElementById(id);
+let sourcePlan;
+
+function chooseSources(previous){
+  const plans = [];
+  for(let first = 0; first < TRAITS.length; first++){
+    for(let second = first + 1; second < TRAITS.length; second++){
+      plans.push(TRAITS.map((_, i)=>i === first || i === second));
+    }
+  }
+  const choices = previous ? plans.filter(plan=>TRAITS.some((trait, i)=>
+    (plan[i] ? mom : dad)[trait.k] !== previous[trait.k])) : plans;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
+
+function randomParents(){
+  mom = {}; dad = {};
+  TRAITS.forEach(t=>{
+    const a = Math.random()<.5?0:1;
+    mom[t.k] = t.o[a].v;
+    dad[t.k] = t.o[Math.random()<.8 ? 1-a : a].v;
+  });
+  if(TRAITS.every(t=>mom[t.k] === dad[t.k])){
+    const t = TRAITS[Math.floor(Math.random() * TRAITS.length)];
+    dad[t.k] = t.o.find(option=>option.v !== mom[t.k]).v;
+  }
+}
+function newFamily(){ randomParents(); babies=[]; babyNum=0; $('gallery').innerHTML=''; $('galWrap').classList.add('hidden'); startBaby(); }
+function startBaby(){
+  round++;
+  sourcePlan = chooseSources(babies[babies.length - 1]);
+  baby = {}; idx = 0; fromMom = 0; babyNum++;
+  $('habitArea').classList.add('hidden'); $('habitNote').classList.add('hidden');
+  $('sibBtn').classList.add('hidden'); $('flipArea').classList.remove('hidden');
+  $('flipBtn').disabled = false; $('flipMsg').innerHTML='';
+  $('coin').classList.remove('spin');
+  renderLab(null);
+}
+function renderLab(hit, side){
+  $('momSvg').innerHTML = familyPortrait(mom, 'mom'); $('dadSvg').innerHTML = familyPortrait(dad, 'dad');
+  $('babySvg').innerHTML = familyPortrait(baby, 'baby');
+  $('momList').innerHTML = traitList(mom, side==='mom'?hit:null);
+  $('dadList').innerHTML = traitList(dad, side==='dad'?hit:null);
+  $('babyList').innerHTML = traitList(baby, hit);
+  if(idx < TRAITS.length){
+    const t = TRAITS[idx];
+    $('stepText').innerHTML = `Trait ${idx+1} of ${TRAITS.length}: <u>${t.en}</u> — flip the coin to see who the baby gets it from!
+      <span class="zh">第 ${idx+1} 個特徵（共 ${TRAITS.length} 個）：${t.zh}——擲硬幣，看看寶寶從誰那裡得到這個特徵！</span>`;
+  }
+}
+
+$('flipBtn').onclick = ()=>{
+  const currentRound = round;
+  const t = TRAITS[idx];
+  const isMom = sourcePlan[idx];
+  const coin = $('coin');
+  coin.classList.remove('spin'); void coin.offsetWidth;
+  coin.style.setProperty('--end', (isMom? 1800 : 1980)+'deg');
+  coin.classList.add('spin');
+  playFlipSound();
+  $('flipBtn').disabled = true; $('flipMsg').innerHTML = '…';
+  setTimeout(()=>{
+    if(currentRound !== round) return;
+    const p = isMom?mom:dad, o = opt(t, p[t.k]);
+    baby[t.k] = p[t.k]; if(isMom) fromMom++;
+    const same = mom[t.k]===dad[t.k];
+    const en = `The baby has ${o.en}!`;
+    const zh = t.k === 'freckles' ? `寶寶${o.zh}！` : `寶寶有${o.zh}！`;
+    $('flipMsg').innerHTML = `${en} ${sayBtns(en,zh)}<span class="zh">${zh}</span>` +
+      (same?`<span class="zh" style="font-size:1rem">(Mom and Dad both have this! 爸爸媽媽都有這個特徵！)</span>`:'');
+    idx++;
+    renderLab(t.k, isMom?'mom':'dad');
+    if(idx < TRAITS.length){ $('flipBtn').disabled = false; }
+    else setTimeout(()=>{ if(currentRound === round) finishBaby(); }, 1400);
+  }, 1150);
+};
+
+function finishBaby(){
+  $('flipArea').classList.add('hidden');
+  $('stepText').innerHTML = `Baby #${babyNum} is born! 🎉 <span class="zh">${babyNum} 號寶寶出生了！🎉</span>`;
+  const n = TRAITS.length, d = n-fromMom;
+  $('summary').innerHTML = `In our game, the baby got <b>${fromMom}</b> traits from Mom and <b>${d}</b> traits from Dad. These are <b>inherited traits</b> 🧬.
+    <span class="zh">在遊戲中，寶寶從媽媽那裡得到 ${fromMom} 個特徵，從爸爸那裡得到 ${d} 個特徵。這些是「遺傳特徵」🧬。</span>`;
+  $('habits').innerHTML = HABITS.map((h,i)=>`<button class="habit" data-i="${i}"><span class="e">${h.e}</span><span>${h.en}<br><span class="zh">${h.zh}</span></span></button>`).join('');
+  document.querySelectorAll('.habit').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  $('habitArea').classList.remove('hidden');
+  babies.push({...baby});
+  const mini = document.createElement('div'); mini.className='mini';
+  mini.innerHTML = familyPortrait(baby, 'baby')+`Baby #${babyNum}<br><span class="zh">${babyNum} 號寶寶</span>`;
+  $('gallery').appendChild(mini);
+  if(babies.length>1) $('galWrap').classList.remove('hidden');
+}
+
+const HABITS = [
+  {e:'🥦',en:'Eat vegetables',zh:'吃蔬菜'},{e:'🪥',en:'Brush teeth',zh:'刷牙'},
+  {e:'🧼',en:'Wash hands',zh:'洗手'},{e:'😴',en:'Sleep early',zh:'早點睡覺'},
+  {e:'🏃',en:'Exercise',zh:'運動'},{e:'💧',en:'Drink water',zh:'喝水'},
+];
+$('habitDone').onclick = ()=>{
+  const n = document.querySelectorAll('.habit.on').length;
+  const note = $('habitNote');
+  note.innerHTML = (n? `Great! The baby learned ${n} healthy habit${n>1?'s':''}. `:`Pick at least one habit! `) +
+    `Habits are <b>not</b> inherited — Mom and Dad can't pass them on when the baby is born. We <b>learn</b> them! 📚
+    <span class="zh">${n?`太棒了！寶寶學會了 ${n} 個健康習慣。`:'請至少選一個習慣！'}習慣「不是」遺傳的——寶寶出生時，爸爸媽媽不能把習慣傳給寶寶。習慣是我們「學來的」！📚</span>`;
+  note.classList.remove('hidden');
+  if(n) $('sibBtn').classList.remove('hidden');
+};
+$('sibBtn').onclick = startBaby;
+$('newFam').onclick = newFamily;
+
+/* ---------- sorting game ---------- */
+const CARDS = [
+  {e:'👁️',en:'Eye color',zh:'眼睛的顏色',a:'inh'},
+  {e:'🦱',en:'Curly hair',zh:'捲頭髮',a:'inh'},
+  {e:'😊',en:'Dimples',zh:'酒窩',a:'inh'},
+  {e:'🌟',en:'Freckles',zh:'雀斑',a:'inh'},
+  {e:'🖐️',en:'Skin color',zh:'膚色',a:'inh'},
+  {e:'💇',en:'Natural hair color',zh:'天生的頭髮顏色',a:'inh'},
+  {e:'🩸',en:'Blood type',zh:'血型',a:'inh'},
+  {e:'🗣️',en:'Speaking English and Chinese',zh:'會說英文和中文',a:'lrn'},
+  {e:'🚲',en:'Riding a bike',zh:'騎腳踏車',a:'lrn'},
+  {e:'🧼',en:'Washing hands',zh:'洗手',a:'lrn'},
+  {e:'🪥',en:'Brushing teeth',zh:'刷牙',a:'lrn'},
+  {e:'🥦',en:'Eating vegetables',zh:'吃蔬菜',a:'lrn'},
+  {e:'🏊',en:'Swimming',zh:'游泳',a:'lrn'},
+  {e:'📖',en:'Reading books',zh:'看書',a:'lrn'},
+  {e:'🥢',en:'Using chopsticks',zh:'用筷子',a:'lrn'},
+];
+let deck, si, right;
+function startSort(){
+  deck = [...CARDS].sort(()=>Math.random()-.5); si=0; right=0;
+  $('restartSort').classList.add('hidden'); showCard();
+}
+function showCard(){
+  const c = deck[si];
+  $('score').innerHTML = `Card ${si+1} / ${deck.length} · ⭐ ${right} <span class="zh">第 ${si+1} 張 / 共 ${deck.length} 張</span>`;
+  $('sortCard').innerHTML = `<div class="emoji">${c.e}</div><div class="en">${c.en}</div><div class="zh">${c.zh}</div><div style="margin-top:8px">${sayBtns(c.en,c.zh)}</div>`;
+  $('fb').className='fb'; $('fb').innerHTML='';
+  $('nextCard').classList.add('hidden');
+  document.querySelectorAll('#bins button').forEach(b=>b.disabled=false);
+}
+document.querySelectorAll('#bins button').forEach(b=>b.onclick=()=>{
+  const c = deck[si], ok = b.dataset.a===c.a;
+  if(ok) right++;
+  const kind = c.a==='inh' ? ['inherited 🧬','遺傳的 🧬'] : ['learned 📚','學來的 📚'];
+  $('fb').className = 'fb '+(ok?'ok':'no');
+  $('fb').innerHTML = (ok?'✅ Correct! ':'❌ Not quite! ')+`${c.en} is ${kind[0]}.<span class="zh">${ok?'答對了！':'再想想！'}「${c.zh}」是${kind[1]}。</span>`;
+  document.querySelectorAll('#bins button').forEach(x=>x.disabled=true);
+  si++;
+  if(si<deck.length) $('nextCard').classList.remove('hidden');
+  else {
+    $('score').innerHTML = `🎉 You got ${right} / ${deck.length}! <span class="zh">你答對了 ${right} 題（共 ${deck.length} 題）！</span>`;
+    $('restartSort').classList.remove('hidden');
+  }
+});
+$('nextCard').onclick = showCard;
+$('restartSort').onclick = startSort;
+
+/* ---------- tabs ---------- */
+function tab(which){
+  $('lab').classList.toggle('on', which==='lab'); $('sort').classList.toggle('on', which==='sort');
+  $('tabLab').classList.toggle('on', which==='lab'); $('tabSort').classList.toggle('on', which==='sort');
+}
+$('tabLab').onclick = ()=>tab('lab'); $('tabSort').onclick = ()=>tab('sort');
+
+/* Compare the two most recently completed siblings. */
+let clueIndex, cluePair, clueAnswers;
+const clueDialog = $('clueDialog');
+const clueButtons = [$('clueFirst'), $('clueSecond'), $('clueBoth')];
+
+function showClue(){
+  const trait = TRAITS[clueIndex];
+  const value = cluePair[clueIndex % 2][trait.k];
+  const option = opt(trait, value);
+  clueAnswers = cluePair.map(person=>person[trait.k] === value);
+  const question = `Who has ${option.en}?`;
+  const zh = trait.k === 'freckles' ? `誰${option.zh}？` : `誰有${option.zh}？`;
+  $('clueQuestion').innerHTML = `${clueIndex + 1} / ${TRAITS.length} · ${question} ${sayBtns(question, zh)}<span class="zh">${zh}</span>`;
+  $('clueFeedback').textContent = '';
+  $('clueNext').classList.add('hidden');
+  clueButtons.forEach(button=>button.disabled = false);
+}
+
+$('clueStart').onclick = ()=>{
+  cluePair = babies.slice(-2);
+  clueIndex = 0;
+  cluePair.forEach((person, i)=>{
+    const number = babies.length - 1 + i;
+    clueButtons[i].innerHTML = `${familyPortrait(person, 'baby')}Baby ${number} <span class="zh">${number} 號寶寶</span>`;
+  });
+  showClue();
+  clueDialog.showModal();
+};
+
+clueButtons.forEach((button, i)=>button.onclick = ()=>{
+  const both = clueAnswers.every(Boolean);
+  const answer = both ? 2 : clueAnswers.indexOf(true);
+  if(i !== answer){
+    $('clueFeedback').textContent = 'Try again! 再試一次！';
+    return;
+  }
+  const trait = TRAITS[clueIndex];
+  const value = cluePair[clueIndex % 2][trait.k];
+  const option = opt(trait, value);
+  const number = babies.length - 1 + answer;
+  const sentence = both ? `Both babies have ${option.en}.` : `Baby ${number} has ${option.en}.`;
+  const who = both ? '兩個寶寶都' : `${number} 號寶寶`;
+  const zh = trait.k === 'freckles' ? `${who}${option.zh}。` : `${who}有${option.zh}。`;
+  $('clueFeedback').innerHTML = `${sentence} ${sayBtns(sentence, zh)}<div class="zh">${zh}</div>`;
+  clueButtons.forEach(choice=>choice.disabled = true);
+  $('clueNext').innerHTML = clueIndex + 1 === TRAITS.length
+    ? 'Done <span class="zh">完成</span>' : 'Next <span class="zh">下一題</span>';
+  $('clueNext').classList.remove('hidden');
+});
+
+$('clueNext').onclick = ()=>{
+  clueIndex++;
+  if(clueIndex === TRAITS.length) clueDialog.close();
+  else showClue();
+};
+$('clueClose').onclick = ()=>clueDialog.close();
+
+let flipContext;
+async function playFlipSound(){
+  const startedRound = round;
+  try{
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    flipContext ??= new Audio();
+    await flipContext.resume();
+    if(startedRound !== round || !$('coin').classList.contains('spin')) return;
+    const start = flipContext.currentTime;
+    [0,.09,.20,.34,.51,.72,.95].forEach((delay, i)=>{
+      const tick = flipContext.createOscillator();
+      const envelope = flipContext.createGain();
+      const time = start + delay;
+      tick.type = 'sine';
+      tick.frequency.setValueAtTime(880 - i * 45, time);
+      tick.frequency.exponentialRampToValueAtTime(460, time + .045);
+      envelope.gain.setValueAtTime(.055, time);
+      envelope.gain.exponentialRampToValueAtTime(.001, time + .06);
+      tick.connect(envelope).connect(flipContext.destination);
+      tick.start(time);
+      tick.stop(time + .065);
+    });
+  }catch{}
+}
+
+/* Soft music begins only after a user gesture. */
+const melody = [60,64,67,64,62,65,69,65,64,67,72,67,62,65,67,null];
+let musicContext, musicVolume, musicTimer, noteIndex = 0;
+const musicButton = $('musicBtn');
+
+function playMusicNote(){
+  if(document.hidden || musicContext.state !== 'running') return;
+  const note = melody[noteIndex++ % melody.length];
+  if(note === null) return;
+  const now = musicContext.currentTime;
+  const tone = musicContext.createOscillator();
+  const envelope = musicContext.createGain();
+  tone.type = 'sine';
+  tone.frequency.value = 440 * 2 ** ((note - 69) / 12);
+  envelope.gain.setValueAtTime(0, now);
+  envelope.gain.linearRampToValueAtTime(1, now + .04);
+  envelope.gain.exponentialRampToValueAtTime(.001, now + .48);
+  tone.connect(envelope).connect(musicVolume);
+  tone.start(now);
+  tone.stop(now + .5);
+}
+
+musicButton.onclick = async ()=>{
+  musicButton.disabled = true;
+  try{
+    if(musicTimer !== undefined){
+      clearInterval(musicTimer);
+      musicTimer = undefined;
+      musicVolume.gain.value = 0;
+    }else{
+      if(!musicContext){
+        const Audio = window.AudioContext || window.webkitAudioContext;
+        musicContext = new Audio();
+        musicVolume = musicContext.createGain();
+        musicVolume.connect(musicContext.destination);
+      }
+      await musicContext.resume();
+      musicVolume.gain.value = .035;
+      playMusicNote();
+      musicTimer = setInterval(playMusicNote, 520);
+    }
+    const playing = musicTimer !== undefined;
+    musicButton.setAttribute('aria-pressed', String(playing));
+    musicButton.innerHTML = playing
+      ? '♫ Mute music <span class="zh">關閉音樂</span>'
+      : '♫ Music on <span class="zh">開啟音樂</span>';
+  }catch{
+    musicButton.textContent = 'Music unavailable 無法播放音樂';
+  }finally{
+    musicButton.disabled = false;
+  }
+};
+
+newFamily(); startSort();
+</script>
+</body>
+</html>
